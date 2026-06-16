@@ -4,15 +4,17 @@ using Unity.Cinemachine;
 public class CinemachineZoom2D : MonoBehaviour
 {
     [Header("Настройки Input Manager")]
-    [SerializeField] private string zoomAxisName = "Zoom"; // Имя оси, которую мы создали
+    [SerializeField] private string zoomAxisName = "Zoom"; // Наша ось для колесика
 
     [Header("Ограничения размера камеры")]
     [SerializeField] private float minZoom = 3f;
     [SerializeField] private float maxZoom = 15f;
 
     [Header("Параметры плавности")]
-    [SerializeField] private float manualZoomSpeed = 5f;
-    [SerializeField] private float lerpSpeed = 4f;
+    // Для колесика мыши скорость лучше поставить побольше (например, 20-30), 
+    // чтобы камера реагировала на каждый "щелчок" колесика шустрее
+    [SerializeField] private float manualZoomSpeed = 25f;
+    [SerializeField] private float lerpSpeed = 5f;
 
     private float targetZoom;
     private CinemachineCamera vCam;
@@ -31,20 +33,20 @@ public class CinemachineZoom2D : MonoBehaviour
     {
         if (vCam == null) return;
 
-        // Считываем значение с оси Input Manager (-1, 0 или 1)
+        // Считываем кручение колесика
         float zoomInput = Input.GetAxisRaw(zoomAxisName);
 
-        // В Input Manager кнопка Positive (+) — это P (приближение). 
-        // Приблизить — значит уменьшить OrthographicSize. Поэтому мы вычитаем (!) значение инпута.
         if (zoomInput != 0)
         {
+            // На большинстве мышек прокрутка "вверх" (от себя) выдает положительное число.
+            // Обычно "от себя" означает приблизить, поэтому мы вычитаем, уменьшая размер линзы.
             targetZoom -= zoomInput * manualZoomSpeed * Time.deltaTime;
         }
 
         // Ограничиваем размеры
         targetZoom = Mathf.Clamp(targetZoom, minZoom, maxZoom);
 
-        // Плавно меняем размер линзы камеры
+        // Плавно применяем
         vCam.Lens.OrthographicSize = Mathf.Lerp(vCam.Lens.OrthographicSize, targetZoom, lerpSpeed * Time.deltaTime);
     }
 }
