@@ -2,11 +2,24 @@ using UnityEngine;
 
 public class MoveMent : MonoBehaviour
 {
-    [SerializeField] private float speed = 5f;
+    public float speed = 5f;
+    private Rigidbody2D rb;
+    private float horizontalInput;
+
+    void Start()
+    {
+        rb = GetComponent<Rigidbody2D>();
+    }
 
     void Update()
     {
-        float move = Input.GetAxis("Horizontal");
-        transform.position += new Vector3(move, 0, 0) * speed * Time.deltaTime;
+        // В Update ТОЛЬКО собираем нажатия клавиш
+        horizontalInput = Input.GetAxisRaw("Horizontal");
+    }
+
+    void FixedUpdate()
+    {
+        // ДВИГАЕМ ЧЕРЕЗ RIGIDBODY, чтобы работали стены и коллайдеры
+        rb.linearVelocity = new Vector2(horizontalInput * speed, rb.linearVelocity.y);
     }
 }
